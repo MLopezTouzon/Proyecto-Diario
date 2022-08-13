@@ -1,0 +1,20 @@
+{% extends "AppDiario/padre.html" %}
+{% load static %}
+
+{% block titulo %}
+<h1 class="text-white font-weight-bold">{{ posteo.titulo }}</h1>
+                        <hr class="divider" />
+{% endblock %}
+
+{% block contenido_que_cambia %}
+<p>{{ posteo.descripcion }}</p>
+{{ foto }}
+<p>{{ posteo.contenido }}</p>
+<p>Autor: {{ posteo.autor }}</p>
+<p>{{ posteo.publicado }}</p>
+<br>
+{% if request.user.is_authenticated %}      
+<a class="nav-link" href="{% url 'eliminarEspectaculos' posteo.titulo %}">Eliminar Posteo</a>   
+<a class="nav-link" href="{% url 'editarEspectaculos' posteo.titulo %}">Editar Posteo</a>   
+{% endif %}
+{% endblock %}

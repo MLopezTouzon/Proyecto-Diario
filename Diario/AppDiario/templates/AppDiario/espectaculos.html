@@ -7,25 +7,16 @@
 {% endblock %}
 
 {% block contenido_que_cambia %}
-
 {% for posteo_espectaculos in posteo_espectaculos %}
-
-<li>{{ posteo_espectaculos.titulo }}</li>
-<li>{{ posteo_espectaculos.descripcion }}</li>
-<li>{{ posteo_espectaculos.contenido }}</li>
-<li>Autor: {{ posteo_espectaculos.autor }}</li>
-<li>{{ posteo_espectaculos.publicado }}</li>
+<button>
+    <a href="{% url 'verEspectaculos' posteo_espectaculos.titulo %}">{{ posteo_espectaculos.titulo }}</a>
+</button>
 <br>
-<button>
-    <a href="{% url 'eliminarEspectaculos' posteo_espectaculos.titulo %}">Eliminar</a>
-</button>
-
-<button>
-    <a href="{% url 'editarEspectaculos' posteo_espectaculos.titulo %}">Editar</a>
-</button>
-
 {% endfor %}
-<br>
-<a href="{% url 'nuevoEspectaculos' %}">Nuevo Posteo</a>
+{% endblock %}
 
+{% block administrar %}
+{% if request.user.is_authenticated %}      
+<a class="nav-link" href="{% url 'nuevoEspectaculos' %}">Nuevo Posteo</a>   
+{% endif %}
 {% endblock %}

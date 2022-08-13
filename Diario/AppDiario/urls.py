@@ -34,21 +34,25 @@ urlpatterns = [
     path('editarUltimasNoticias/<post>', editarUltimasNoticias, name="editarUltimasNoticias"),
     path('elminarUltimasNoticias/<titulo>', eliminarUltimasNoticias, name="eliminarUltimasNoticias"),
     path('nuevoUltimasNoticias/', nuevoUltimasNoticias, name="nuevoUltimasNoticias"),
+    path('verPosteoUltimasNoticias/<titulo>', verPosteoNoticias, name="verNoticias"),
 #ECONOMIA
     path('economia/', leerEconomia, name='economia'),
     path('editarEconomia/<post>', editarEconomia, name="editarEconomia"),
     path('elminarEconomia/<titulo>', eliminarEconomia, name="eliminarEconomia"),
-    path('nuevoEconomia/', nuevoEconomia, name="nuevoEconomia"),
+    path('nuevoEconomia/', nuevoEconomia, name="nuevoEconomia"),    
+    path('verPosteoEconomia/<titulo>', verPosteoEconomia, name="verEconomia"),    
 #DEPORTES
     path('deportes/', leerDeportes, name='deportes'),
     path('editarDeportes/<post>', editarDeportes, name="editarDeportes"),
     path('elminarDeportes/<titulo>', eliminarDeportes, name="eliminarDeportes"),
     path('nuevoDeportes/', nuevoDeportes, name="nuevoDeportes"),
+    path('verPosteoDeportes/<titulo>', verPosteoDeportes, name="verDeportes"),
 #ESPECTACULOS
     path('espectaculos/', leerEspectaculos, name='espectaculos'),
     path('editarEspectaculos/<post>', editarEspectaculos, name="editarEspectaculos"),
     path('elminarEspectaculos/<titulo>', eliminarEspectaculos, name="eliminarEspectaculos"),
     path('nuevoEspectaculos/', nuevoEspectaculos, name="nuevoEspectaculos"),
+    path('verPosteoEspectaculos/<titulo>', verPosteoEspectaculos, name="verEspectaculos"),
 
 
 ]

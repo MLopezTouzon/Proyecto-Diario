@@ -36,7 +36,7 @@
                         {% if not request.user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">LOGIN</a></li>
                         {% else %}
-                        <img src="{{ imagen }}" alt="imagen de PERFIL"/>
+                        <img src="{{ imagen }}" width="50" height="50" alt="imagen de PERFIL"/>
                         <p>Hola! {{request.user.username }}</p>
                         <li class="nav-item"><a class="nav-link" href="{% url 'verMensajes' %}">Mensajes</a></li>
                         <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">LOGOUT</a></li>
@@ -48,10 +48,12 @@
         <!-- Masthead-->
         <header class="masthead">
             <div class="container px-4 px-lg-5 h-100">
-                <div class="row gx-4 gx-lg-5 h-100 align-items-center justify-content-center text-center">
+                {% block administrar %}                
+                {% endblock %}
+                <div class="row gx-4 gx-lg-5 h-100 align-items-center justify-content-center text-center">                    
                     <div class="col-lg-8 align-self-end">
                         {% block titulo %}
-                        {% endblock %}    
+                    {% endblock %}                            
                     </div>
                     <div class="col-lg-8 align-self-baseline">
                     </div>

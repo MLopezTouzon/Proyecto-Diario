@@ -13,11 +13,14 @@
 <form action="{% url 'editarPerfil' %}" method="POST"> {% csrf_token %}
 
         <table>
-            {{ formulario.as_table }}
+            {{ formulario.as_table }}            
         </table>
 
         <p><input type="submit" value="Enviar"></p>
 
-    </form>
+</form>
+<button>
+<a class="nav-link" href="{% url 'agregarAvatar'  %}">Agregar o Cambiar Avatar</a>   
+</button>
 
 {% endblock %}

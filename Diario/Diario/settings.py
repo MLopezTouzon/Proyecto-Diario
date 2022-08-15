@@ -131,6 +131,7 @@ LOGIN_URL="/AppDiario/login/"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 #CONFIGURACION CKEDITOR
+CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
     'default':{
         'toolbar':'full',

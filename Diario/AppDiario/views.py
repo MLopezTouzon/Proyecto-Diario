@@ -1,13 +1,8 @@
-from ast import Delete
-from email.mime import image
-from multiprocessing import context
 from django.shortcuts import render
 from .models import *
-from django.http import request
-from django.http import HttpResponse
 from AppDiario.forms import *
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 
 
@@ -15,8 +10,11 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def inicio(request):
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
-    return render(request, "AppDiario/inicio.html",{"imagen":imagen})
+    if request.user.is_authenticated:
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
+        return render(request, "AppDiario/inicio.html",{"imagen":imagen})
+    else: 
+        return render(request, "AppDiario/inicio.html")
 
 
 #USUARIOS
@@ -215,6 +213,7 @@ def register(request):
 
 @login_required
 def editarPerfil(request):
+    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     usuario= request.user
     if request.method == "POST":
         formulario= UserEditForm(request.POST, instance=usuario)
@@ -224,10 +223,10 @@ def editarPerfil(request):
             usuario.password1= informacion["password1"]
             usuario.password2= informacion["password2"]
             usuario.save()
-            return render(request, "AppDiario/inicio.html", {"usuario":usuario, "mensaje":"PERFIL EDITADO CON EXITO"})
+            return render(request, "AppDiario/inicio.html", {"usuario":usuario, "mensaje":"PERFIL EDITADO CON EXITO", "imagen":imagen})
     else:
         formulario= UserEditForm(instance=usuario)
-    return render(request, "AppDiario/editarPerfil.html", {"formulario":formulario, "usuario":usuario.username})
+    return render(request, "AppDiario/editarPerfil.html", {"formulario":formulario, "usuario":usuario.username, "imagen":imagen})
 
 #------------------------------------------
 
@@ -298,20 +297,29 @@ def nuevoPosteo(request):
 #POSTEOS
 
 def posteo1(request):
-
+    
     return render(request, "AppDiario/post_1.html")
+
 #ULTIMAS NOTICIAS
-def verPosteoNoticias(request, titulo):             
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url 
+def verPosteoNoticias(request, titulo):       
     posteo= PosteoUltimasNoticias.objects.get(titulo=titulo)  
     posteo.save()
-    return render (request, "AppDiario/verPosteoUltimasNoticias.html", {"posteo":posteo, "imagen":imagen})
+    foto= PosteoUltimasNoticias.objects.filter(titulo= titulo)[0].foto.url
+    if request.user.is_authenticated:           
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
+        return render (request, "AppDiario/verPosteoUltimasNoticias.html", {"posteo":posteo, "foto":foto, "imagen":imagen})
+    else:
+        return render (request, "AppDiario/verPosteoUltimasNoticias.html", {"posteo":posteo, "foto":foto})
 
 def leerUltimasNoticias(request):
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url    
     posteo_ultimasNoticias= PosteoUltimasNoticias.objects.all()
-    return render (request, "AppDiario/ultimasnoticias.html", {"posteo_ultimasNoticias":posteo_ultimasNoticias, "imagen":imagen})
+    if request.user.is_authenticated:    
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url    
+        return render (request, "AppDiario/ultimasnoticias.html", {"posteo_ultimasNoticias":posteo_ultimasNoticias, "imagen":imagen})
+    else:
+        return render (request, "AppDiario/ultimasnoticias.html", {"posteo_ultimasNoticias":posteo_ultimasNoticias})
 
+@login_required
 def editarUltimasNoticias(request, post):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_ultimasNoticias= PosteoUltimasNoticias.objects.get(titulo=post)
@@ -322,12 +330,14 @@ def editarUltimasNoticias(request, post):
             posteo_ultimasNoticias.titulo= info["titulo"]
             posteo_ultimasNoticias.descripcion= info["descripcion"]
             posteo_ultimasNoticias.contenido= info["contenido"]
+            posteo_ultimasNoticias.foto= request.FILES.get("foto")
             posteo_ultimasNoticias.save()
             return render(request, "AppDiario/UltimasNoticias.html", {"imagen":imagen})
     else:
-        form= PosteoUltimasNoticiasForm(initial={"titulo":posteo_ultimasNoticias.titulo, "descripcion":posteo_ultimasNoticias.descripcion, "contenido":posteo_ultimasNoticias.contenido})
+        form= PosteoUltimasNoticiasForm(initial={"titulo":posteo_ultimasNoticias.titulo, "foto":posteo_ultimasNoticias.foto, "descripcion":posteo_ultimasNoticias.descripcion, "contenido":posteo_ultimasNoticias.contenido})
     return render(request, "AppDiario/editarUltimasNoticias.html", {"formulario":form, "post":post, "imagen":imagen})
 
+@login_required
 def eliminarUltimasNoticias(request, titulo):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_ultimasNoticias= PosteoUltimasNoticias.objects.get(titulo=titulo)
@@ -335,6 +345,7 @@ def eliminarUltimasNoticias(request, titulo):
     post= PosteoUltimasNoticias.objects.all()
     return render(request, "AppDiario/inicio.html", {"post":post, "imagen":imagen})
 
+@login_required
 def nuevoUltimasNoticias(request):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     user= request.user
@@ -345,8 +356,9 @@ def nuevoUltimasNoticias(request):
             titulo= info["titulo"]
             descripcion= info["descripcion"]
             contenido= info["contenido"]  
+            foto= request.FILES.get("foto")
             autor= user             
-            posteo_ultimasNoticias= PosteoUltimasNoticias(titulo=titulo, descripcion=descripcion, contenido=contenido, autor=autor)
+            posteo_ultimasNoticias= PosteoUltimasNoticias(titulo=titulo, descripcion=descripcion, foto=foto, contenido=contenido, autor=autor)
             posteo_ultimasNoticias.save()
             return render(request, "AppDiario/inicio.html", {"imagen":imagen})
     else:
@@ -355,17 +367,25 @@ def nuevoUltimasNoticias(request):
 
 
 #ECONOMIA
-def verPosteoEconomia(request, titulo):             
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url 
+def verPosteoEconomia(request, titulo):
     posteo= PosteoEconomia.objects.get(titulo=titulo)  
     posteo.save()
-    return render (request, "AppDiario/verPosteoEconomia.html", {"posteo":posteo, "imagen":imagen})
+    foto= PosteoEconomia.objects.filter(titulo= titulo)[0].foto.url
+    if request.user.is_authenticated:             
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url     
+        return render (request, "AppDiario/verPosteoEconomia.html", {"posteo":posteo, "foto":foto, "imagen":imagen})
+    else:
+        return render (request, "AppDiario/verPosteoEconomia.html", {"posteo":posteo, "foto":foto})
 
 def leerEconomia(request):
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url    
     posteo_economia= PosteoEconomia.objects.all()
-    return render (request, "AppDiario/economia.html", {"posteo_economia":posteo_economia, "imagen":imagen})
+    if request.user.is_authenticated:
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url  
+        return render (request, "AppDiario/economia.html", {"posteo_economia":posteo_economia, "imagen":imagen})  
+    else:   
+        return render (request, "AppDiario/economia.html", {"posteo_economia":posteo_economia})
 
+@login_required
 def editarEconomia(request, post):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_economia= PosteoEconomia.objects.get(titulo=post)
@@ -376,12 +396,14 @@ def editarEconomia(request, post):
             posteo_economia.titulo= info["titulo"]
             posteo_economia.descripcion= info["descripcion"]
             posteo_economia.contenido= info["contenido"]
+            posteo_economia.foto= request.FILES.get("foto")
             posteo_economia.save()
             return render(request, "AppDiario/economia.html", {"imagen":imagen})
     else:
-        form= PosteoEconomiaForm(initial={"titulo":posteo_economia.titulo, "descripcion":posteo_economia.descripcion, "contenido":posteo_economia.contenido})
+        form= PosteoEconomiaForm(initial={"titulo":posteo_economia.titulo, "foto":posteo_economia.foto, "descripcion":posteo_economia.descripcion, "contenido":posteo_economia.contenido})
     return render(request, "AppDiario/editarEconomia.html", {"formulario":form, "post":post, "imagen":imagen})
 
+@login_required
 def eliminarEconomia(request, titulo):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_economia= PosteoEconomia.objects.get(titulo=titulo)
@@ -389,6 +411,7 @@ def eliminarEconomia(request, titulo):
     post= PosteoEconomia.objects.all()
     return render(request, "AppDiario/inicio.html", {"post":post, "imagen":imagen})
 
+@login_required
 def nuevoEconomia(request):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     user= request.user
@@ -399,8 +422,9 @@ def nuevoEconomia(request):
             titulo= info["titulo"]
             descripcion= info["descripcion"]
             contenido= info["contenido"]  
+            foto= request.FILES.get("foto")
             autor= user             
-            posteo_economia= PosteoEconomia(titulo=titulo, descripcion=descripcion, contenido=contenido, autor=autor)
+            posteo_economia= PosteoEconomia(titulo=titulo, descripcion=descripcion, contenido=contenido, foto=foto, autor=autor)
             posteo_economia.save()
             return render(request, "AppDiario/inicio.html", {"imagen":imagen})
     else:
@@ -408,18 +432,25 @@ def nuevoEconomia(request):
     return render(request, "AppDiario/nuevoEconomia.html", {"form":form, "imagen":imagen}) 
 
 #DEPORTES
-def verPosteoDeportes(request, titulo):             
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url 
+def verPosteoDeportes(request, titulo):    
     posteo= PosteoDeportes.objects.get(titulo=titulo)  
     posteo.save()
-    foto= posteo.foto
-    return render (request, "AppDiario/verPosteoDeportes.html", {"posteo":posteo,"foto":foto, "imagen":imagen})
+    foto= PosteoDeportes.objects.filter(titulo= titulo)[0].foto.url
+    if request.user.is_authenticated:
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url 
+        return render (request, "AppDiario/verPosteoDeportes.html", {"posteo":posteo,"foto":foto, "imagen":imagen})
+    else:
+        return render (request, "AppDiario/verPosteoDeportes.html", {"posteo":posteo,"foto":foto})
 
 def leerDeportes(request):
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_deportes= PosteoDeportes.objects.all()
-    return render (request, "AppDiario/deportes.html", {"posteo_deportes":posteo_deportes, "imagen":imagen})
+    if request.user.is_authenticated:
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url 
+        return render (request, "AppDiario/deportes.html", {"posteo_deportes":posteo_deportes, "imagen":imagen})
+    else: 
+        return render (request, "AppDiario/deportes.html", {"posteo_deportes":posteo_deportes})
 
+@login_required
 def editarDeportes(request, post):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_deportes= PosteoDeportes.objects.get(titulo=post)
@@ -430,12 +461,14 @@ def editarDeportes(request, post):
             posteo_deportes.titulo= info["titulo"]
             posteo_deportes.descripcion= info["descripcion"]
             posteo_deportes.contenido= info["contenido"]
+            posteo_deportes.foto= request.FILES.get("foto")
             posteo_deportes.save()           
             return render(request, "AppDiario/deportes.html", {"imagen":imagen})
     else:
-        form= PosteoDeportesForm(initial={"titulo":posteo_deportes.titulo, "descripcion":posteo_deportes.descripcion, "contenido":posteo_deportes.contenido})
+        form= PosteoDeportesForm(initial={"titulo":posteo_deportes.titulo, "foto":posteo_deportes.foto, "descripcion":posteo_deportes.descripcion, "contenido":posteo_deportes.contenido})
     return render(request, "AppDiario/editarDeportes.html", {"formulario":form, "post":post, "imagen":imagen})
 
+@login_required
 def eliminarDeportes(request, titulo):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_deportes= PosteoDeportes.objects.get(titulo=titulo)
@@ -443,6 +476,7 @@ def eliminarDeportes(request, titulo):
     post= PosteoDeportes.objects.all()
     return render(request, "AppDiario/inicio.html", {"post":post, "imagen":imagen})
 
+@login_required
 def nuevoDeportes(request):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     user= request.user
@@ -452,9 +486,10 @@ def nuevoDeportes(request):
             info= form.cleaned_data
             titulo= info["titulo"]
             descripcion= info["descripcion"]
-            contenido= info["contenido"]   
+            contenido= info["contenido"] 
+            foto= request.FILES.get("foto")
             autor= user       
-            posteo_deportes= PosteoDeportes(titulo=titulo, descripcion=descripcion, contenido=contenido, autor=autor)
+            posteo_deportes= PosteoDeportes(titulo=titulo, descripcion=descripcion, contenido=contenido, autor=autor, foto=foto)
             posteo_deportes.save()            
             return render(request, "AppDiario/inicio.html", {"imagen":imagen})
     else:
@@ -464,16 +499,24 @@ def nuevoDeportes(request):
 
 #ESPECTACULOS
 def verPosteoEspectaculos(request, titulo):             
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url 
     posteo= PosteoEspectaculos.objects.get(titulo=titulo)  
     posteo.save()
-    return render (request, "AppDiario/verPosteoEspectaculos.html", {"posteo":posteo, "imagen":imagen})
+    foto= PosteoEspectaculos.objects.filter(titulo= titulo)[0].foto.url
+    if request.user.is_authenticated:
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url 
+        return render (request, "AppDiario/verPosteoEspectaculos.html", {"posteo":posteo, "foto":foto, "imagen":imagen})
+    else:
+        return render (request, "AppDiario/verPosteoEspectaculos.html", {"posteo":posteo, "foto":foto})
 
 def leerEspectaculos(request):
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url    
     posteo_espectaculos= PosteoEspectaculos.objects.all()
-    return render (request, "AppDiario/espectaculos.html", {"posteo_espectaculos":posteo_espectaculos, "imagen":imagen})
+    if request.user.is_authenticated:
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url        
+        return render (request, "AppDiario/espectaculos.html", {"posteo_espectaculos":posteo_espectaculos, "imagen":imagen})
+    else:
+        return render (request, "AppDiario/espectaculos.html", {"posteo_espectaculos":posteo_espectaculos})
 
+@login_required
 def editarEspectaculos(request, post):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_espectaculos= PosteoEspectaculos.objects.get(titulo=post)
@@ -484,12 +527,14 @@ def editarEspectaculos(request, post):
             posteo_espectaculos.titulo= info["titulo"]
             posteo_espectaculos.descripcion= info["descripcion"]
             posteo_espectaculos.contenido= info["contenido"]
+            posteo_espectaculos.foto= request.FILES.get("foto")
             posteo_espectaculos.save()
             return render(request, "AppDiario/espectaculos.html", {"imagen":imagen})
     else:
-        form= PosteoEspectaculosForm(initial={"titulo":posteo_espectaculos.titulo, "descripcion":posteo_espectaculos.descripcion, "contenido":posteo_espectaculos.contenido})
+        form= PosteoEspectaculosForm(initial={"titulo":posteo_espectaculos.titulo, "foto":posteo_espectaculos.foto, "descripcion":posteo_espectaculos.descripcion, "contenido":posteo_espectaculos.contenido})
     return render(request, "AppDiario/editarEspectaculos.html", {"formulario":form, "post":post, "imagen":imagen})
 
+@login_required
 def eliminarEspectaculos(request, titulo):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     posteo_espectaculos= PosteoEspectaculos.objects.get(titulo=titulo)
@@ -497,6 +542,7 @@ def eliminarEspectaculos(request, titulo):
     post= PosteoEspectaculos.objects.all()
     return render(request, "AppDiario/inicio.html", {"post":post, "imagen":imagen})
 
+@login_required
 def nuevoEspectaculos(request):
     imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
     user= request.user
@@ -507,8 +553,9 @@ def nuevoEspectaculos(request):
             titulo= info["titulo"]
             descripcion= info["descripcion"]
             contenido= info["contenido"] 
+            foto= request.FILES.get("foto")
             autor= user              
-            posteo_espectaculos= PosteoEspectaculos(titulo=titulo, descripcion=descripcion, contenido=contenido, autor=autor)
+            posteo_espectaculos= PosteoEspectaculos(titulo=titulo, descripcion=descripcion, foto=foto, contenido=contenido, autor=autor)
             posteo_espectaculos.save()
             return render(request, "AppDiario/inicio.html", {"imagen":imagen})
     else:

@@ -35,36 +35,16 @@ class Staff(models.Model):
         return "nombre:"+" "+self.nombre+" "+"E-mail:"+" "+self.email+" "+"Edad:"+" "+str(self.edad)+" "+"Categoria:"+" "+self.categoria
 
 
-class Avatar(models.Model):
-    
+class Avatar(models.Model):    
     user= models.ForeignKey(User, on_delete=models.CASCADE)
     imagen= models.ImageField(upload_to='avatares', null=True, blank=True)   
 
-'''class Categoria(models.Model):
-     name= models.CharField(max_length=100)
-
-     def __str__(self) -> str:
-          return self.name'''
-
-class Posteo(models.Model):
-
-    '''class ObjetosPublicados(models.Manager):
-        
-        def get_queryset(self):
-            return super().get_queryset().filter(status="publicados")
-        
-    opciones= (("borrador","borrador"),("publicado","publicado"))'''
-
-    #categoria= models.ForeignKey(Categoria, on_delete=models.PROTECT, default=1)
+class Posteo(models.Model):     
     titulo= models.CharField(max_length=100)
     descripcion= models.TextField(null=True)
-    contenido= models.TextField()
-    #slug= models.SlugField(max_length=250, unique_for_date="publicado", null=False, unique=True)
+    contenido= models.TextField()    
     publicado= models.DateTimeField(default=timezone.now)
-    autor= models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_post", null=TRUE)
-    #estado= models.CharField(max_length=10, choices=opciones, default="borrador")
-    #objects= models.Manager()
-    #objetos_publicados= ObjetosPublicados()
+    autor= models.ForeignKey(User, on_delete=models.CASCADE, related_name="blog_post", null=TRUE)    
 
     def __str__(self):
         return self.titulo
@@ -81,10 +61,10 @@ class Comentarios(models.Model):
         return f"Comentario de {self.nombre}"
 
 
-class PosteoUltimasNoticias(models.Model):
-    
+class PosteoUltimasNoticias(models.Model):    
     titulo= models.CharField(max_length=150)
     descripcion= RichTextField(null=True)
+    foto= models.ImageField(upload_to='imagenes', null=True, blank=True)
     contenido= RichTextField()
     publicado= models.DateTimeField(default=timezone.now)
     autor= models.ForeignKey(User, on_delete=models.CASCADE,null=TRUE)
@@ -93,9 +73,9 @@ class PosteoUltimasNoticias(models.Model):
         return self.titulo
 
 class PosteoEconomia(models.Model):
-
     titulo= models.CharField(max_length=100)
     descripcion= models.TextField(null=True)
+    foto= models.ImageField(upload_to='imagenes', null=True, blank=True)
     contenido= models.TextField()
     publicado= models.DateTimeField(default=timezone.now)
     autor= models.ForeignKey(User, on_delete=models.CASCADE,null=TRUE)
@@ -103,8 +83,7 @@ class PosteoEconomia(models.Model):
     def __str__(self):
         return self.titulo
 
-class PosteoDeportes(models.Model):
-    
+class PosteoDeportes(models.Model):    
     titulo= models.CharField(max_length=150)
     descripcion= RichTextField(null=True)
     foto= models.ImageField(upload_to='imagenes', null=True, blank=True)
@@ -116,9 +95,9 @@ class PosteoDeportes(models.Model):
         return self.titulo
 
 class PosteoEspectaculos(models.Model):
-
     titulo= models.CharField(max_length=100)
-    descripcion= models.TextField(null=True)    
+    descripcion= models.TextField(null=True)  
+    foto= models.ImageField(upload_to='imagenes', null=True, blank=True)  
     contenido= models.TextField()
     publicado= models.DateTimeField(default=timezone.now)
     autor= models.ForeignKey(User, on_delete=models.CASCADE,null=TRUE)
@@ -126,8 +105,7 @@ class PosteoEspectaculos(models.Model):
     def __str__(self):
         return self.titulo
 
-class Imagen(models.Model):
-    
+class Imagen(models.Model):    
     imagen= models.ImageField(upload_to='imagenes', null=True, blank=True)  
 
 

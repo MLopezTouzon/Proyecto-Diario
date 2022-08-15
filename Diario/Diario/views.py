@@ -5,5 +5,8 @@ from AppDiario.models import *
 
 
 def inicio(request):
-    imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
-    return render(request, "AppDiario/inicio.html",{"imagen":imagen})
+    if request.user.is_authenticated:
+        imagen= Avatar.objects.filter(user= request.user.id)[0].imagen.url
+        return render(request, "AppDiario/inicio.html",{"imagen":imagen})
+    else:
+        return render(request, "AppDiario/inicio.html")

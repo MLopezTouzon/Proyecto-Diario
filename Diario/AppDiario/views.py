@@ -561,3 +561,6 @@ def nuevoEspectaculos(request):
     else:
         form= PosteoEspectaculosForm()
     return render(request, "AppDiario/nuevoEspectaculos.html", {"form":form, "imagen":imagen}) 
+
+def sobreMi(request):
+    return render(request, "AppDiario/sobreMi.html")

@@ -53,6 +53,8 @@ urlpatterns = [
     path('elminarEspectaculos/<titulo>', eliminarEspectaculos, name="eliminarEspectaculos"),
     path('nuevoEspectaculos/', nuevoEspectaculos, name="nuevoEspectaculos"),
     path('verPosteoEspectaculos/<titulo>', verPosteoEspectaculos, name="verEspectaculos"),
+#ACERCA DE MI
+    path('sobreMi/', sobreMi, name='sobreMi'),
 
 
 ]

@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block contenido_que_cambia %}
-<p>{{ posteo.descripcion }}</p>
+<p>{{ posteo.descripcion | safe }}</p>
 <img src="{{ foto }}" alt="aca va la imagen">
-<p>{{ posteo.contenido }}</p>
+<p>{{ posteo.contenido | safe }}</p>
 <p>Autor: {{ posteo.autor }}</p>
 <p>{{ posteo.publicado }}</p>
 <br>
